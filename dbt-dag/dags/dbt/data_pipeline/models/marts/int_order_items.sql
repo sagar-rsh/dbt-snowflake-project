@@ -1,0 +1,18 @@
+select
+  lineitem.order_item_key,
+  lineitem.part_key,
+  lineitem.line_number,
+  lineitem.extended_price,
+  lineitem.tax_rate,
+  orders.order_key,
+  orders.customer_key,
+  orders.order_date,
+  {{ discounted_amount('lineitem.extended_price', 'lineitem.discount_percentage') }} as item_discount_amount,
+  {{ tax_amount('lineitem.extended_price', 'lineitem.discount_percentage', 'lineitem.tax_rate') }} as item_tax_amount
+from
+  {{ ref('stg_tpch_orders') }} as orders
+join
+  {{ ref('stg_tpch_lineitem') }} as lineitem
+  on orders.order_key = lineitem.order_key
+order by
+  orders.order_date
